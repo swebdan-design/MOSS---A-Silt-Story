@@ -220,7 +220,9 @@ def soundtrack():
     if not prov:
         print('WARNING: no soundtrack captured'); return []
     rom_hash = sha(ROM)
-    for f in sorted(src.glob('*.flac')):
+    for f in sorted(dst.glob('*.flac')) + sorted(dst.glob('*.mp3')):
+        f.unlink()
+    for f in sorted(src.glob('*.mp3')):
         shutil.copy(f, dst / f.name)
     shutil.copy(src / 'provenance.json', dst / 'provenance.json')
     lines = ['# MOSS — Companion Soundtrack', '', '*Synth Centric*', '',
@@ -230,8 +232,9 @@ def soundtrack():
              'layered or edited. Post-processing: DC offset removal, peak normalisation to',
              '-1 dBFS, a 2-second fade-in and a 5-second fade-out. These are emulator',
              'captures, **not** recordings of physical hardware.', '',
-             'Lossless FLAC (48 kHz, 16-bit, stereo) is in this folder; the public',
-             'distribution ZIP carries MP3 copies.', '',
+             'This folder holds MP3 (LAME VBR quality 2, 48 kHz stereo). Lossless 48 kHz',
+             '16-bit FLAC and WAV masters are written by `tools/capture_soundtrack.py`',
+             '(about 120 MB, so they are not stored in the repository).', '',
              '| # | Title | Length | Source in the game |', '| --- | --- | --- | --- |']
     for t in prov:
         m, s_ = divmod(int(t['seconds']), 60)
@@ -255,7 +258,7 @@ def zips(prov):
     with zipfile.ZipFile(src_zip, 'w', zipfile.ZIP_DEFLATED) as z:
         for f in tracked:
             p = ROOT / f
-            if not p.is_file() or f.startswith('dist/') or f.endswith('.flac'): continue
+            if not p.is_file() or f.startswith('dist/') or f.endswith(('.flac', '.mp3')): continue
             z.write(p, 'MOSS/' + f)
     pub = DIST / 'MOSS_by_Synth_Centric.zip'
     with zipfile.ZipFile(pub, 'w', zipfile.ZIP_DEFLATED) as z:
@@ -263,9 +266,6 @@ def zips(prov):
             if not p.is_file() or p.suffix == '.flac': continue
             if p.name.endswith('.ram') or p.name.endswith('.sav'): continue
             z.write(p, 'MOSS_by_Synth_Centric/' + str(p.relative_to(REL)))
-        mp3s = sorted((ROOT / 'build/soundtrack').glob('*.mp3'))
-        for m in mp3s:
-            z.write(m, 'MOSS_by_Synth_Centric/soundtrack/' + m.name)
     for z in (src_zip, pub):
         print(f'{z.relative_to(ROOT)}  {z.stat().st_size / 1e6:.1f} MB  {sha(z)}')
     (DIST / 'SHA256SUMS.txt').write_text(''.join(f'{sha(z)}  {z.name}\n' for z in (src_zip, pub)))

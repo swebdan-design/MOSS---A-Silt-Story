@@ -187,10 +187,10 @@ p.settle(300)
 check('pond instrument entered', p.pos()[0] == M['pondscreen'])
 shot('21_pond_instrument')
 # the bell's interval: lowest row, then the second row
-p.press('down', 3, 6); p.press('down', 3, 6)        # cursor row 4
-p.press('a', 3, 40)
-p.press('up', 3, 6); p.press('up', 3, 6); p.press('up', 3, 6)  # row 1
-p.press('a', 3, 400)
+p.press('down', 8, 8); p.press('down', 8, 8)        # cursor row 4
+p.press('a', 8, 40)
+p.press('up', 8, 8); p.press('up', 8, 8); p.press('up', 8, 8)  # row 1
+p.press('a', 8, 400)
 shot('22_pond_answer')
 p.tick(600)
 heard = p.u8('_pond_answer_heard')

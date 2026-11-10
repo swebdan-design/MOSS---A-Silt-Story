@@ -123,8 +123,8 @@ static void draw_sprites(void) {
         Ripple *r = &garden.rip[i];
         if (!r->active) continue;
         for (k = 0; k < 8; k += (uint8_t)(8 / pts)) {
-            int16_t x = GX + r->x + (int16_t)((ring_dx[k] * r->r) / 10) - 4;
-            int16_t y = GY + r->y + (int16_t)((ring_dy[k] * r->r) / 10) - 4;
+            int16_t x = GX + r->x + (int16_t)(((int16_t)ring_dx[k] * r->r * 13) >> 7) - 4;
+            int16_t y = GY + r->y + (int16_t)(((int16_t)ring_dy[k] * r->r * 13) >> 7) - 4;
             if (spr >= 40) break;
             if (x < GX - 4 || x > GX + 124 || y < GY - 4 || y > GY + 76) { gfx_hide_small(spr++); continue; }
             gfx_small(spr++, SPR_RIPPLE, x, y - 4, 1);
