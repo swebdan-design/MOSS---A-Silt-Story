@@ -1,0 +1,82 @@
+[
+ {
+  "track": "01",
+  "title": "The Cottage",
+  "source": "Mae's cottage on the second day: the kitchen clock, a few pebble phrases.",
+  "seconds": 182.1,
+  "emulator": "SameBoy 1.0.1 core, DMG-B model",
+  "rom_sha256": "d87219852f2153c2b9dc9b3a08f3c68b811ef0860125fbae970cd9fea239ac5e"
+ },
+ {
+  "track": "02",
+  "title": "Whispering Wood",
+  "source": "The wood after wind, hollow wood and insects have been found.",
+  "seconds": 202.1,
+  "emulator": "SameBoy 1.0.1 core, DMG-B model",
+  "rom_sha256": "d87219852f2153c2b9dc9b3a08f3c68b811ef0860125fbae970cd9fea239ac5e"
+ },
+ {
+  "track": "03",
+  "title": "The Three Stones",
+  "source": "The creek: the three stones knocked deep, high, in between; then the water.",
+  "seconds": 193.0,
+  "emulator": "SameBoy 1.0.1 core, DMG-B model",
+  "rom_sha256": "d87219852f2153c2b9dc9b3a08f3c68b811ef0860125fbae970cd9fea239ac5e"
+ },
+ {
+  "track": "04",
+  "title": "Summer Rain",
+  "source": "The pond instrument, preset Summer Rain, left alone.",
+  "seconds": 248.4,
+  "emulator": "SameBoy 1.0.1 core, DMG-B model",
+  "rom_sha256": "d87219852f2153c2b9dc9b3a08f3c68b811ef0860125fbae970cd9fea239ac5e"
+ },
+ {
+  "track": "05",
+  "title": "The Old Railway",
+  "source": "The platform in the rain: the station bell and the cutting's echo, then absence.",
+  "seconds": 187.4,
+  "emulator": "SameBoy 1.0.1 core, DMG-B model",
+  "rom_sha256": "d87219852f2153c2b9dc9b3a08f3c68b811ef0860125fbae970cd9fea239ac5e"
+ },
+ {
+  "track": "06",
+  "title": "The Hill",
+  "source": "The hilltop in open fifths, crickets in the long grass.",
+  "seconds": 195.5,
+  "emulator": "SameBoy 1.0.1 core, DMG-B model",
+  "rom_sha256": "d87219852f2153c2b9dc9b3a08f3c68b811ef0860125fbae970cd9fea239ac5e"
+ },
+ {
+  "track": "07",
+  "title": "The Pond at Evening",
+  "source": "The pond instrument, preset In the Reeds.",
+  "seconds": 248.4,
+  "emulator": "SameBoy 1.0.1 core, DMG-B model",
+  "rom_sha256": "d87219852f2153c2b9dc9b3a08f3c68b811ef0860125fbae970cd9fea239ac5e"
+ },
+ {
+  "track": "08",
+  "title": "Before Leaving",
+  "source": "The pond instrument, preset Before Leaving.",
+  "seconds": 248.4,
+  "emulator": "SameBoy 1.0.1 core, DMG-B model",
+  "rom_sha256": "d87219852f2153c2b9dc9b3a08f3c68b811ef0860125fbae970cd9fea239ac5e"
+ },
+ {
+  "track": "09",
+  "title": "The First Listener",
+  "source": "The pond instrument, preset Quiet Clearing: stillness.",
+  "seconds": 248.4,
+  "emulator": "SameBoy 1.0.1 core, DMG-B model",
+  "rom_sha256": "d87219852f2153c2b9dc9b3a08f3c68b811ef0860125fbae970cd9fea239ac5e"
+ },
+ {
+  "track": "10",
+  "title": "The Pond Remains",
+  "source": "The pond instrument with SILT's original twelve-lily garden.",
+  "seconds": 368.4,
+  "emulator": "SameBoy 1.0.1 core, DMG-B model",
+  "rom_sha256": "d87219852f2153c2b9dc9b3a08f3c68b811ef0860125fbae970cd9fea239ac5e"
+ }
+]

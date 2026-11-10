@@ -4,7 +4,7 @@
 Every track is the game's own audio, captured from the SameBoy emulator core
 (DMG model, SameBoy's open-source boot ROM) while the ROM runs in a specific
 state set up through a cartridge save and ordinary button input. Nothing is
-re-synthesised. Post-processing is limited to DC removal, peak normalisation
+re-synthesised. Post-processing is limited to DC removal and a 20 Hz high-pass, peak normalisation
 and short fades at the start and end of each track.
 
 Outputs WAV (48 kHz, 16-bit stereo) to build/soundtrack/ and, if ffmpeg is
@@ -12,6 +12,7 @@ present, FLAC and MP3 copies. Writes a provenance JSON.
 Environment: SAMEBOY_LIB, SAMEBOY_BOOT (see tools/sameboy_backend.py).
 """
 import os, sys, json, wave, subprocess, time
+from pathlib import Path
 sys.path.insert(0, os.path.dirname(__file__))
 os.environ['MOSS_EMU'] = 'sameboy'
 import numpy as np
@@ -107,9 +108,24 @@ TRACKS = [
 ]
 
 
+def highpass(x, rate, fc=20.0):
+    """Remove sub-audible DC drift (the DMG DAC's offsets): subtract a
+    moving average about 1/fc seconds long, like the output capacitor on a
+    real Game Boy. NumPy only."""
+    n = int(rate / fc)
+    c = np.cumsum(np.vstack([np.zeros((1, x.shape[1])), x]), axis=0)
+    avg = np.empty_like(x)
+    for i0 in range(0, len(x), 1 << 20):
+        idx = np.arange(i0, min(len(x), i0 + (1 << 20)))
+        lo = np.clip(idx - n // 2, 0, len(x)); hi = np.clip(idx + n // 2, 0, len(x))
+        avg[idx] = (c[hi] - c[lo]) / np.maximum(1, (hi - lo))[:, None]
+    return x - avg
+
+
 def master(a, rate):
     x = a.astype(np.float64)
     x -= x.mean(axis=0)
+    x = highpass(x, rate)
     peak = np.abs(x).max() or 1.0
     x *= (0.891 * 32767) / peak                    # -1 dBFS peak
     fin, fout = int(2.0 * rate), int(5.0 * rate)
@@ -118,7 +134,27 @@ def master(a, rate):
     return np.clip(x, -32768, 32767).astype(np.int16)
 
 
+def remaster():
+    """Apply the current mastering to existing WAVs (no re-capture)."""
+    for f in sorted(Path(OUT).glob('*.wav')):
+        with wave.open(str(f)) as w:
+            rate = w.getframerate(); a = np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16).reshape(-1, 2)
+        x = highpass(a.astype(np.float64), rate)
+        x *= (0.891 * 32767) / (np.abs(x).max() or 1)
+        m = np.clip(x, -32768, 32767).astype(np.int16)
+        with wave.open(str(f), 'wb') as w:
+            w.setnchannels(2); w.setsampwidth(2); w.setframerate(rate); w.writeframes(m.tobytes())
+        num, title = f.stem.split(' - ', 1)
+        meta = ['-metadata', f'title={title}', '-metadata', 'artist=Synth Centric',
+                '-metadata', 'album=MOSS (A SILT Story) Companion Soundtrack', '-metadata', f'track={int(num)}/10']
+        for ext, args in (('flac', ['-c:a', 'flac']), ('mp3', ['-c:a', 'libmp3lame', '-q:a', '2'])):
+            subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', str(f)] + args + meta + [str(f.with_suffix('.' + ext))], check=False)
+        print('remastered', f.name)
+
+
 def main():
+    if sys.argv[1:] == ['--remaster']:
+        return remaster()
     only = set(sys.argv[1:])
     prov = []
     for num, title, desc, mk_save, script in TRACKS:
