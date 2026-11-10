@@ -12,24 +12,25 @@ CARTFLAGS := -Wm-yt0x1B -Wm-ya1 -Wm-yoA -Wm-yn"MOSS" -Wm-yk"SC" -Wm-yl0x33
 CFLAGS    := -Isource -I$(GEN) -Wf--max-allocs-per-node50000 -Wf--opt-code-size
 
 SRC       := $(wildcard source/*.c)
-GENSRC    := $(GEN)/assets.c $(GEN)/maps.c
-OBJS      := $(patsubst source/%.c,$(OBJ)/%.o,$(SRC)) $(patsubst $(GEN)/%.c,$(OBJ)/gen_%.o,$(GENSRC))
+ASSET_SRC := $(wildcard assets/*/*.txt) tools/gen_assets.py tools/art_scenes.py
+-include $(GEN)/files.mk
+OBJS       = $(patsubst source/%.c,$(OBJ)/%.o,$(SRC)) $(patsubst $(GEN)/%.c,$(OBJ)/gen_%.o,$(GENSRC))
 
 all: $(ROM)
 
 $(GEN)/audio_tables.inc: tools/gen_audio_tables.py
 	$(PYTHON) $< $@
 
-$(GEN)/assets.c $(GEN)/assets.h $(GEN)/maps.c $(GEN)/maps.h: tools/gen_assets.py $(wildcard assets/*/*.txt) $(wildcard tools/art/*.py)
+$(GEN)/files.mk $(GEN)/assets.h $(GEN)/maps.h: $(ASSET_SRC)
 	$(PYTHON) tools/gen_assets.py $(GEN)
 
 $(OBJ)/%.o: source/%.c $(wildcard source/*.h) $(GEN)/audio_tables.inc $(GEN)/assets.h $(GEN)/maps.h
 	@mkdir -p $(OBJ)
 	$(LCC) $(CFLAGS) -c -o $@ $<
 
-$(OBJ)/gen_%.o: $(GEN)/%.c $(GEN)/assets.h $(GEN)/maps.h
+$(OBJ)/gen_%.o: $(GEN)/files.mk $(GEN)/assets.h $(GEN)/maps.h
 	@mkdir -p $(OBJ)
-	$(LCC) $(CFLAGS) -c -o $@ $<
+	$(LCC) $(CFLAGS) -c -o $@ $(GEN)/$*.c
 
 $(ROM): $(OBJS)
 	@mkdir -p release

@@ -1,0 +1,43 @@
+map village w=16 h=14 tiles=outdoor scene=VILLAGE
+grid
+TTTTTTT==TTTTTTT
+Tt,...s==.....tT
+T.[^]..==..[^].T
+T.WdW..==..SdW.T
+T,....*==*..m..T
+T..b..====..b..T
+=======o========
+T.....====.....T
+T.[^]..==.[^]..T
+T.WDW..==.WdW..T
+T.m.*..==.()cc.T
+Tff*...==.__cc.T
+Tt,....==.....tT
+TTTTTTTTTTTTTTTT
+warp 7 0 wood 7 14 up
+warp 8 0 wood 8 14 up
+warp 0 6 hill 10 6 left
+warp 15 6 creek 1 7 right
+warp 3 9 cottage 4 7 up
+obj sign 6 1
+obj well 7 6
+obj iris_door 3 3
+obj shop 11 3
+obj shop_door 12 3
+obj iris_box 12 4
+obj mae_box 2 10
+obj hollis_door 11 9
+obj crops 12 10
+obj flowerbed 1 11
+obj shelter 10 11
+listen shelter 10 11 11 11
+listen well 6 5 9 7
+patch dusk 13 9 wall_lit
+patch dusk2 4 9 wall_lit
+patch dusk3 2 3 wall_lit
+point mae_garden 4 11
+point iris 9 5
+point hollis 13 11
+point ada 13 4
+point gardener_shelter 11 11
+point cat 5 4

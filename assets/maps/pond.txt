@@ -1,0 +1,26 @@
+map pond w=14 h=11 tiles=outdoor scene=POND_SHORE
+legend A=willow_tl B=willow_tr C=willow_bl E=willow_br q=stone_bank
+grid
+TTTTTTTTTTTTTT
+TTAB..r..,.*.T
+T.CE.12222223T
+T.r..4wlwwlw6T
+T,...4w0ww0w6T
+T.*.r4wwlwRw6T
+T....78888889T
+T.k....,..r..T
+Tp..*......,pT
+TTT...==...TTT
+TTTTTT==TTTTTT
+warp 6 10 wood 8 1 down
+warp 7 10 wood 9 1 down
+obj willow 2 2
+obj willow2 3 2
+obj stone_a 7 4
+obj stone_b 10 4
+listen bank 6 7 11 8
+patch stone 5 7 stone_bank
+point sit 8 7
+point reed 10 5
+point cat 3 7
+point iris 4 8

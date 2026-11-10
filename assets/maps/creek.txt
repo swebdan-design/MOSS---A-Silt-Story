@@ -1,0 +1,24 @@
+map creek w=16 h=10 tiles=outdoor scene=CREEK
+grid
+TTTTTTTTTTT==TTT
+Tt.,..p...g==.tT
+T..*.....r.==..T
+nnnnnnnnnnnBnnnn
+wwww0w0w0wwBwwww
+vvvvvvvvvvvBvvvv
+T.r..,....r==..T
+===========..,.T
+Tp..*..k..,..b.T
+TTTTTTTTTTTTTTTT
+warp 0 7 village 14 6 left
+warp 11 0 railway 11 7 up
+warp 12 0 railway 12 7 up
+obj stone1 4 5
+obj stone2 6 5
+obj stone3 8 5
+obj water 2 5
+obj water2 1 5
+listen bridge 11 3 11 5
+listen bank 1 6 9 6
+point iris 6 6
+point ripple 2 4

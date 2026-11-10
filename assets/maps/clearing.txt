@@ -1,0 +1,19 @@
+map clearing w=10 h=9 tiles=outdoor scene=CLEARING
+legend q=ring G=glow
+grid
+TTTTTTTTTT
+TTp~~~~pTT
+Tp~~MM~~~T
+T~~q~~~q~T
+T~~~~~~~~=
+T~~G~~~G~T
+Tp~~MM~~pT
+TTp~~~~pTT
+TTTTTTTTTT
+warp 9 4 wood 1 8 right
+obj ring 3 3
+obj ring2 7 3
+obj glow 3 5
+obj glow2 7 5
+listen still 3 3 6 5
+point center 5 4

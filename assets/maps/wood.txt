@@ -1,0 +1,40 @@
+map wood w=16 h=16 tiles=outdoor scene=WOOD
+legend F=fern+solid r=reeds+nosolid 1=pond_nw 2=pond_n 3=pond_ne 4=pond_w 6=pond_e 7=pond_sw 8=pond_s 9=pond_se
+grid
+TTTTTTTT==TTTTTT
+TTTpM..T==.pTTTT
+TTp..g.==..M.TTT
+TT..gg==...b..TT
+TTM..==.TTr1223T
+TTp.==..TTr4wR6T
+Tp..=...TTr7889T
+T..==.M.Tp.rr..T
+FF==....TTT....T
+T.,=..k.TTTT.g.T
+Tu..=....p...ggT
+T.{}=..g......MT
+Tp...=.gg..TTTTT
+TT.M..=....b.TTT
+TTTp...==....TTT
+TTTTTTT==TTTTTTT
+warp 8 0 pond 6 9 up
+warp 9 0 pond 7 9 up
+warp 7 15 village 7 1 down
+warp 8 15 village 8 1 down
+warp 0 8 clearing 8 4 left
+obj log 2 11
+obj log2 3 11
+obj ferns 1 8
+obj ferns2 0 8
+obj marsh 12 5
+obj mushroom 2 4
+obj sign_tree 9 7
+listen reeds 9 4 10 7
+listen hidden 2 7 4 9
+listen log 1 10 4 12
+patch open 0 8 path
+patch open 1 8 path
+point iris 5 10
+point iris_log 4 12
+point cat_ferns 2 8
+point reed_peek 13 5

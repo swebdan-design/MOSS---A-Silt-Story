@@ -1,0 +1,22 @@
+map hill w=12 h=12 tiles=outdoor scene=HILL
+legend 1=big_tl 2=big_tr 3=big_bl 4=big_br L=ledge
+grid
+TTTTTTTTTTTT
+T..,...*.,.T
+T.*.12..ggpT
+T...34.gggpT
+T.,....gggtT
+TLLLL..LLLLT
+T..g...,..==
+T.ggg.*....T
+TLLLLLL..LLT
+T.,..*...,.T
+Tt.k.....*tT
+TTTTTTTTTTTT
+warp 11 6 village 1 6 right
+obj tree 4 3
+obj tree2 5 3
+listen meadow 7 2 9 4
+listen top 2 1 6 4
+point hollis 3 7
+point iris 6 1

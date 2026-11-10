@@ -520,8 +520,8 @@ void compose_set_tempo(uint8_t bpm) MB {
     if (bpm < 50) bpm = 50;
     if (bpm > 140) bpm = 140;
     comp.bpm = bpm;
-    /* frames per step, 8.8: 59.73 fps * 60 s * 256 / (4 steps per beat) */
-    comp.step_fp = (uint16_t)(229363UL / bpm);
+    /* audio ticks per step, 8.8: 60.24 Hz timer * 60 s * 256 / (4 steps per beat) */
+    comp.step_fp = (uint16_t)(231322UL / bpm);
 }
 
 void compose_apply_pond(void) MB {

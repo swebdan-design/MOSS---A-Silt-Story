@@ -1,0 +1,24 @@
+map pondscreen w=10 h=9 tiles=pondui scene=POND
+legend <=top_l >=top_r t=top T=top2 L=bank_l l=bank_l2 R=bank_r r=bank_r2 c=cell a=stone_a b=stone_b
+legend {=bot_l }=bot_r _=bottom g=grass .=blank
+grid
+<tTtTtTtT>
+lccccccccR
+Lccccccccr
+lcaccccbcR
+Lccccccccr
+lccccccccR
+{________}
+gggggggggg
+..........
+patch cell 1 1 cell
+patch bell 1 1 bell
+patch reed 1 1 reed
+patch root 1 1 root
+patch wood 1 1 wood
+patch bell_x 1 1 bell_x
+patch reed_x 1 1 reed_x
+patch root_x 1 1 root_x
+patch wood_x 1 1 wood_x
+patch stone_a 1 1 stone_a
+patch stone_b 1 1 stone_b

@@ -1,0 +1,24 @@
+map railway w=16 h=9 tiles=outdoor scene=RAILWAY
+legend C=cutting R=rails E=platform_edge Q=platform H=bench_l J=bench_r X=bell Y=lamp Z=station_sign K=tunnel_l N=tunnel_m
+grid
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCKNN
+RRRRRRRRRRRRRKNN
+EEEEEEEEEEEEEEEE
+QQQZQQQHJQQQYQQQ
+QQQQQQXQQQQQQQQQ
+T..,...QQQQQQ..T
+Tp.k..,...,QQ.tT
+TTTTTTTTTTT==TTT
+warp 11 8 creek 11 1 down
+warp 12 8 creek 12 1 down
+obj sign 3 4
+obj bench 7 4
+obj bench2 8 4
+obj bell 6 5
+obj lamp 12 4
+obj edge 5 3
+obj tunnel 13 2
+listen platform 1 4 14 5
+point vale 9 5
+point vale_bench 7 5

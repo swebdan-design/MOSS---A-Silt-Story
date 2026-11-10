@@ -31,6 +31,9 @@ uint8_t audio_stereo = 1;
 volatile uint8_t audio_last_note[4];
 
 static uint8_t pan_bits = 0xFF;
+static uint16_t next_due;      /* earliest pending event time */
+static uint8_t pending;        /* number of queued events */
+static uint8_t chan_busy;      /* bit per channel with per-frame work */
 static uint8_t wave_loaded = 0xFF;
 static uint8_t drone_on, drone_level;
 static uint16_t drone_per;
@@ -204,19 +207,29 @@ static void chan_frame(uint8_t ch) {
     }
 }
 
+/* Timer interrupt, ~60.2 Hz. The common case (nothing due) is a few
+   dozen cycles; the queue is only scanned when the earliest event is due. */
 void audio_isr(void) {
     uint8_t i;
     uint16_t now = ++audio_tick;
-    for (i = 0; i < QUEUE_LEN; ++i) {
-        if (queue[i].e.ch != FREE && (int16_t)(now - queue[i].at) >= 0) {
-            start_event(&queue[i].e);
-            queue[i].e.ch = FREE;
+    if (pending && (int16_t)(now - next_due) >= 0) {
+        uint16_t best = now + 0x7FFF;
+        for (i = 0; i < QUEUE_LEN; ++i) {
+            if (queue[i].e.ch == FREE) continue;
+            if ((int16_t)(now - queue[i].at) >= 0) {
+                start_event(&queue[i].e);
+                queue[i].e.ch = FREE;
+                --pending;
+            } else if ((int16_t)(queue[i].at - best) < 0) {
+                best = queue[i].at;
+            }
         }
+        next_due = best;
     }
-    chan_frame(0);
-    chan_frame(1);
-    chan_frame(2);
-    chan_frame(3);
+    if (chan[0].hold) chan_frame(0);
+    if (chan[1].hold) chan_frame(1);
+    if (chan[2].hold || (chan[2].fx & FX_DRONE)) chan_frame(2);
+    if (chan[3].hold) chan_frame(3);
 }
 
 uint8_t snd_play(const SndEv *e, uint8_t delay) {
@@ -227,8 +240,11 @@ uint8_t snd_play(const SndEv *e, uint8_t delay) {
         if (queue[i].e.prio < low) { low = queue[i].e.prio; victim = i; }
     }
     if (queue[victim].e.ch != FREE && low >= e->prio) { ++audio_dropped; return 0; }
-    /* The handler reads queue entries; mark busy until fully written. */
-    queue[victim].e.ch = FREE;
+    /* The handler reads queue entries; mark free until fully written. */
+    __critical {
+        if (queue[victim].e.ch != FREE) --pending;
+        queue[victim].e.ch = FREE;
+    }
     queue[victim].at = at;
     queue[victim].e.note = e->note;
     queue[victim].e.env = e->env;
@@ -238,7 +254,11 @@ uint8_t snd_play(const SndEv *e, uint8_t delay) {
     queue[victim].e.fx = e->fx;
     queue[victim].e.fxarg = e->fxarg;
     queue[victim].e.pan = e->pan;
-    queue[victim].e.ch = e->ch & 3;
+    __critical {
+        if (!pending || (int16_t)(at - next_due) < 0) next_due = at;
+        ++pending;
+        queue[victim].e.ch = e->ch & 3;
+    }
     return 1;
 }
 
@@ -261,6 +281,7 @@ void snd_flush(void) {
     uint8_t i;
     __critical {
         for (i = 0; i < QUEUE_LEN; ++i) queue[i].e.ch = FREE;
+        pending = 0;
         for (i = 0; i < 4; ++i) { chan[i].hold = 0; chan[i].trill_left = 0; chan[i].fx = 0; }
         drone_on = 0;
         /* Release by envelope: volume 0, decreasing. No DAC switch for pulses. */
@@ -282,6 +303,7 @@ void audio_init(void) {
     pan_bits = 0xFF;
     NR10_REG = 0x08;
     for (i = 0; i < QUEUE_LEN; ++i) queue[i].e.ch = FREE;
+    pending = 0;
     memset(chan, 0, sizeof(chan));
     wave_loaded = 0xFF;
     drone_on = 0;

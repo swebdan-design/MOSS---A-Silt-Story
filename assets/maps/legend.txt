@@ -1,0 +1,8 @@
+Default legend for MOSS maps (char=metatile; +flag / +noflag adjust collision).
+T=forest t=tree p=pine .=grass ,=grass2 *=flowers ==path g=tall b=bush
+-=fence_h |=fence_v f=flowerbed c=crops [=roof_l ^=roof_m ]=roof_r
+W=wall_win L=wall_lit D=wall_door+nosolid d=wall_door P=wall_plain S=wall_sign
+m=mailbox s=sign o=well (=shelter_l )=shelter_r _=boards w=water l=lily
+R=reeds_w r=reeds k=rock u=stump {=log_l }=log_r M=mushroom F=fern ~=moss
+:=gravel B=bridge n=creek_n v=creek_s 0=stone_w
+1=pond_nw 2=pond_n 3=pond_ne 4=pond_w 6=pond_e 7=pond_sw 8=pond_s 9=pond_se
