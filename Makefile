@@ -46,7 +46,7 @@ host-test:
 	$(HOSTCC) -std=c99 -O1 -Wall -Wno-unused-function -Isource -I$(GEN) tests/host_compose.c \
 	    source/compose.c source/garden.c source/memory.c -o build/host_compose
 	./build/host_compose
-	$(HOSTCC) -std=c99 -O1 -Wall -Isource tests/host_save.c -o build/host_save
+	$(HOSTCC) -std=c99 -O1 -Wall -Isource tests/host_save.c source/save.c -o build/host_save
 	./build/host_save
 
 test-emulator: $(ROM)
