@@ -381,9 +381,9 @@ static void final_sequence(void) {
     while (boy_x > -20) { boy_x -= 1; pond_frame(); pond_frame(); }
     boy_state = 3;
     /* the camera stays with the water */
+    pond_wait(1400);
+    reed_show = 220;
     pond_wait(900);
-    reed_show = 200;
-    pond_wait(600);
     page_open();
     gfx_set_palette(0xE4);
     page_center(6, "I thought I had found");
@@ -412,6 +412,7 @@ void pond_run(uint8_t m) BANKED {
     garden_reset();
     pond_enter();
     compose_scene(pmode == POND_FINAL ? SCENE_ENDING : SCENE_POND, behaviours);
+    if (pmode == POND_STORY && game.day == 3) comp.weather = RAIN_DRIZZLE;
     if (pmode == POND_FINAL) {
         final_sequence();
         memcpy(&game.pond, &pond, sizeof(pond));

@@ -36,12 +36,12 @@ class _Sound:
     @property
     def ndarray(self):
         import numpy as np
-        out = np.array(self.sb.frame_samples, dtype=np.int16).reshape(-1, 2) if self.sb.frame_samples else None
-        return out
+        fs = self.sb.frame_samples
+        return np.array(fs, dtype=np.int16).reshape(-1, 2) if len(fs) else None
 
 
 class SameBoy:
-    def __init__(self, rom, sound=False):
+    def __init__(self, rom, sound=False, sram=None):
         self.lib = ctypes.CDLL(os.environ.get('SAMEBOY_LIB', 'libsameboy.so'))
         L = self.lib
         L.GB_alloc.restype = ctypes.c_void_p
@@ -72,12 +72,21 @@ class SameBoy:
         L.GB_set_vblank_callback(self.gb, self._vb)
         L.GB_set_rgb_encode_callback(self.gb, self._rgb)
         self.frame_samples = []
+        self.shim = None
         if sound:
-            self._sc = SAMPLE_CB(self._on_sample)
-            L.GB_set_sample_rate(self.gb, 48000)
-            L.GB_apu_set_sample_callback(self.gb, self._sc)
+            self.shim = ctypes.CDLL(os.environ.get('MOSS_SHIM', 'build/tools/libmoss_shim.so'))
+            self.shim.shim_attach.argtypes = [ctypes.c_void_p, ctypes.c_uint]
+            self.shim.shim_take.argtypes = [ctypes.c_void_p, ctypes.c_int]
+            self.shim.shim_attach(self.gb, 48000)
+            self._abuf = (ctypes.c_int16 * 8192)()
         if L.GB_load_rom(self.gb, rom.encode()):
             raise RuntimeError('SameBoy could not load ' + rom)
+        if sram is not None:
+            import tempfile
+            f = tempfile.NamedTemporaryFile(suffix='.sav', delete=False)
+            f.write(bytes(sram)); f.close()
+            L.GB_load_battery(self.gb, f.name.encode())
+            os.unlink(f.name)
         self.memory = _Mem(self)
         self.screen = _Screen(self)
         self.sound = _Sound(self)
@@ -94,9 +103,11 @@ class SameBoy:
 
     def tick(self, n=1, render=True, sound=False):
         for _ in range(n):
-            self.frame_samples = []
             self.lib.GB_run_frame(self.gb)
             self.frame_count += 1
+            if self.shim:
+                k = self.shim.shim_take(ctypes.addressof(self._abuf), 8192)
+                self.frame_samples = self._abuf[:k]
         return True
 
     def button_press(self, name): self.lib.GB_set_key_state(self.gb, KEYS[name], True)

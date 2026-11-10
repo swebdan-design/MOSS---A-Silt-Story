@@ -384,6 +384,7 @@ static void env_step(uint8_t delay) {
     uint8_t amb = p->ambience, sub;
     uint8_t rain = comp.rain;
     if (!(comp.behaviours & BEH_RAIN) && comp.scene == SCENE_POND) rain = 0;
+    if (comp.weather > rain) rain = comp.weather;   /* the day's weather is always heard */
     if (rain) {
         static const uint8_t rain_p[4] = {0, 40, 110, 200};
         uint8_t n = rain >= RAIN_SHOWER ? 2 : 1;
@@ -550,6 +551,7 @@ void compose_scene(uint8_t scene, uint8_t behaviours) MB {
     comp.hush = 0;
     comp.reply_in = 0;
     comp.quiet = 0;
+    comp.weather = 0;
     if (scene == SCENE_POND || scene == SCENE_ENDING) {
         compose_apply_pond();
         if (scene == SCENE_ENDING) compose_set_tempo((uint8_t)(comp.bpm - 6));

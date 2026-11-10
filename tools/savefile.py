@@ -19,7 +19,7 @@ def pond_bytes(pads=None, scale=0, density=2, rain=0, echo=0, drift=0, bpm=76, w
     return bytes(pads) + bytes([scale, density, rain, echo, drift, bpm, water, insects, hold, wave])
 
 
-def build(day=4, postgame=1, map_=3, x=8, y=7, d=0, flags=(), found=0xFF, seq=1, preset=0):
+def build(day=4, postgame=1, map_=3, x=8, y=7, d=0, flags=(), found=0xFF, seq=1, preset=0, garden=None):
     fl = bytearray(8)
     for f in flags:
         fl[f >> 3] |= 1 << (f & 7)
@@ -29,8 +29,9 @@ def build(day=4, postgame=1, map_=3, x=8, y=7, d=0, flags=(), found=0xFF, seq=1,
     body += bytes([found, len(order)]) + bytes(order + [0] * (8 - len(order)))
     body += struct.pack('<HH', 0x1234, 30)
     body += bytes([1, 1, 0, 7])                       # settings
-    garden = [0] * 40
-    for c, t in ((0, 1), (3, 1), (10, 2), (19, 3), (28, 4)): garden[c] = t
+    if garden is None:
+        garden = [0] * 40
+        for c, t in ((0, 1), (3, 1), (10, 2), (19, 3), (28, 4)): garden[c] = t
     body += pond_bytes(garden) + pond_bytes() + bytes([0, preset])
     mm = bytes(32) + struct.pack('<H', 12) + bytes([0xFF, 0]) + struct.pack('<H', 0) + bytes([0, 0])
     body += mm + bytes(4)
@@ -41,9 +42,12 @@ def build(day=4, postgame=1, map_=3, x=8, y=7, d=0, flags=(), found=0xFF, seq=1,
     return sram
 
 
-def postgame():
+POSTGAME_FLAGS = (0, 1, 2, 3, 4, 19, 20, 21, 32, 40)
+
+
+def postgame(**kw):
     # F_STONE_LEFT=40, F_ANSWER=19, F_NOTEBOOK=4, F_FIRST_PEBBLE=3, intro flags
-    return build(flags=(0, 1, 2, 3, 4, 19, 20, 21, 32, 40))
+    return build(flags=POSTGAME_FLAGS, **kw)
 
 
 if __name__ == '__main__':

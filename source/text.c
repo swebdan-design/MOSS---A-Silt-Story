@@ -290,6 +290,7 @@ uint8_t menu(const char *items, uint8_t n, uint8_t sel, uint8_t width, uint8_t a
 void page_open(void) {
     uint8_t y;
     for (y = 0; y < 18; ++y) win_row(y, UI_BLANK, UI_BLANK, 0, UI_BLANK, 20);
+    anim_pause = 1;
     win_show(7, 0);
     box_open = 0;
     page_slot = 0;
@@ -298,6 +299,7 @@ void page_open(void) {
 void page_close(void) {
     win_hide();
     gfx_reload_map_tiles();
+    anim_pause = 0;
     frame();
 }
 

@@ -99,6 +99,7 @@ typedef struct {
     /* settings */
     uint8_t scene, behaviours, bpm, scale, density, rain, echo, drift, hold, wave;
     uint8_t water, insects, quiet;     /* quiet: duck music (listening state) */
+    uint8_t weather;                   /* rain falling in the story's world (noise only) */
     /* time */
     uint16_t step;
     uint16_t next_at;  /* audio tick of next step */

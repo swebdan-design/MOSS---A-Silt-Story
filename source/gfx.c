@@ -10,6 +10,7 @@ uint8_t bgp_normal = 0xE4;
 uint8_t cur_map = 0xFF;
 uint8_t anim_tiles[8][2];
 uint8_t anim_count;
+uint8_t anim_pause;   /* set while pages borrow map tile slots */
 uint8_t scroll_x, scroll_y;
 uint8_t clip_wx = 255, clip_wy = 255;
 static uint8_t prev_keys;
@@ -198,6 +199,7 @@ void gfx_patch_cell(uint8_t x, uint8_t y, const uint8_t *t) {
 
 void gfx_anim_tick(void) {
     uint8_t i, f = (uint8_t)((frame_count >> 4) & 3);
+    if (anim_pause) return;
     for (i = 0; i < anim_count; ++i) {
         bg_tiles(anim_tiles[i][0], 1, anim_frames + (uint16_t)anim_tiles[i][1] * 64u + (uint16_t)f * 16u);
     }

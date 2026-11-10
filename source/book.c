@@ -58,13 +58,13 @@ static void draw_entry(uint8_t i, uint8_t fresh) {
     const uint8_t *pic = icon_ptr(i, &bank);
     const Entry *e = &entries[i];
     page_open();
-    page_icon(bank, pic, 2, 1);
-    page_text(1, 48, fresh ? "NEW IN THE NOTEBOOK" : "THE SOUND NOTEBOOK");
+    page_text(1, 48, fresh ? "A NEW PAGE" : "NOTEBOOK");
     page_text(3, 48, e->title);
-    page_text(5, 4, e->where);
-    page_wrap(7, 4, e->seen);
-    page_text(12, 4, "At the pond:");
-    page_wrap(13, 3, e->pond);
+    page_text(6, 0, e->where);
+    page_wrap(8, 5, e->seen);
+    page_text(14, 0, "At the pond:");
+    page_wrap(15, 3, e->pond);
+    page_icon(bank, pic, 2, 1);   /* last: the text rows above share its rows */
 }
 
 static void draw_empty(uint8_t n) {

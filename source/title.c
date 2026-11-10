@@ -17,6 +17,7 @@ static void show_picture(uint8_t bank, const uint8_t *pic) {
     scroll_x = scroll_y = 0;
     SCX_REG = 0; SCY_REG = 0;
     cur_map = 0xFF;
+    anim_count = 0;
     gfx_load_picture(bank, pic, 0, 0, 0);
     DISPLAY_ON;
 }
@@ -97,6 +98,7 @@ void intro_prose(void) BANKED {
     LCD_OFF;
     gfx_clear_sprites();
     cur_map = 0xFF;
+    anim_count = 0;
     bgp_normal = 0xE4;
     page_open();
     DISPLAY_ON;

@@ -72,6 +72,7 @@ void gfx_hide_small(uint8_t sprite);
 extern uint8_t cur_map;
 extern uint8_t anim_tiles[8][2];
 extern uint8_t anim_count;
+extern uint8_t anim_pause;
 
 /* ---------------- text ------------------------------------------------ */
 extern uint8_t text_speed;    /* 0 slow, 1 normal, 2 fast */
