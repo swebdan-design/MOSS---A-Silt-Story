@@ -7,6 +7,9 @@ from pyboy import PyBoy
 
 
 def boot(rom, sound=True, cgb=False):
+    if os.environ.get('MOSS_EMU') == 'sameboy':
+        from sameboy_backend import SameBoy
+        return SameBoy(rom, sound=sound)
     return PyBoy(rom, window='null', sound_emulated=sound, cgb=cgb, log_level='ERROR',
                  sound_volume=100)
 

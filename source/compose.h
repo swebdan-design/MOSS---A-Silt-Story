@@ -155,6 +155,7 @@ void garden_story_default(void) MB;
 void garden_visual_tick(void) MB;
 uint8_t garden_count(void) MB;
 const char *garden_preset_name(uint8_t index) MB;
+void garden_preset_name_copy(uint8_t index, char *out) MB;
 
 /* memory.c */
 void mmem_reset(void) MB;

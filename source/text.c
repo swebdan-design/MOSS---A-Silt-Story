@@ -232,31 +232,44 @@ uint8_t ask(const char *question, const char *options) {
 }
 
 /* ---------------------------------------------------------------- menus */
+/* A boxed list on the right of the screen. At most MENU_VISIBLE rows are
+   rendered at once (text tiles are limited); longer lists scroll. */
+#define MENU_VISIBLE 7
 uint8_t menu(const char *items, uint8_t n, uint8_t sel, uint8_t width, uint8_t allow_lr) {
-    const char *it[12];
-    uint8_t i, inner = width - 2, gap = n <= 7 ? 2 : 1, y, h;
+    const char *it[16];
+    uint8_t i, inner = width - 2, vis, y, h, top = 0xFF, newtop;
     const char *p = items;
-    if (n > 12) n = 12;
+    if (n > 16) n = 16;
     for (i = 0; i < n; ++i) { it[i] = p; while (*p && *p != '|') ++p; if (*p) ++p; }
-    h = (uint8_t)(n * gap + (gap == 2 ? 1 : 2));
-    if (h > 18) h = 18;
+    vis = n < MENU_VISIBLE ? n : MENU_VISIBLE;
+    if (sel >= n) sel = 0;
+    h = (uint8_t)(vis * 2 + 1);
     win_row(0, UI_TL, UI_T, 0, UI_TR, width);
-    for (y = 1; y < 18; ++y) win_row(y, UI_L, UI_BLANK, 0, UI_R, width);
+    for (y = 1; y < h; ++y) win_row(y, UI_L, UI_BLANK, 0, UI_R, width);
     win_row(h, UI_BL, UI_B, 0, UI_BR, width);
     for (y = h + 1; y < 18; ++y) win_row(y, UI_BLANK, UI_BLANK, 0, UI_BLANK, width);
-    for (i = 0; i < n; ++i) {
-        uint8_t base = (uint8_t)(TILE_VWF + i * inner);
-        uint8_t r = (uint8_t)(1 + i * gap);
-        render_line(base, inner, 9, it[i]);
-        win_row(r, UI_L, base, 1, UI_R, width);
-    }
     win_show((uint8_t)(7 + (20 - width) * 8), 0);
     box_open = 0;
     menu_lr = 0;
     for (;;) {
-        for (i = 0; i < n; ++i) {
-            uint8_t t = i == sel ? UI_ARROW : UI_BLANK;
-            set_win_tiles(1, (uint8_t)(1 + i * gap), 1, 1, &t);
+        newtop = top == 0xFF ? 0 : top;
+        if (sel < newtop) newtop = sel;
+        if (sel >= newtop + vis) newtop = (uint8_t)(sel - vis + 1);
+        if (newtop != top) {
+            top = newtop;
+            for (i = 0; i < vis; ++i) {
+                uint8_t base = (uint8_t)(TILE_VWF + i * inner);
+                render_line(base, inner, 9, it[top + i]);
+                win_row((uint8_t)(1 + i * 2), UI_L, base, 1, UI_R, width);
+            }
+            y = top > 0 ? UI_MORE : UI_T;      /* hint that the list continues */
+            set_win_tiles((uint8_t)(width - 2), 0, 1, 1, &y);
+            y = top + vis < n ? UI_MORE : UI_B;
+            set_win_tiles((uint8_t)(width - 2), h, 1, 1, &y);
+        }
+        for (i = 0; i < vis; ++i) {
+            uint8_t t = (uint8_t)(top + i) == sel ? UI_ARROW : UI_BLANK;
+            set_win_tiles(1, (uint8_t)(1 + i * 2), 1, 1, &t);
         }
         frame();
         while (!(pressed & (J_UP | J_DOWN | J_A | J_B | J_START | J_LEFT | J_RIGHT))) frame();

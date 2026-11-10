@@ -22,9 +22,11 @@ static void show_picture(uint8_t bank, const uint8_t *pic) {
 }
 
 uint8_t title_run(void) BANKED {
-    uint8_t has_save = save_probe(), opts[3], n = 0, sel = 0, i, row[20];
+    uint8_t has_save, opts[3], n = 0, sel = 0, i, row[20];
     const char *labels[3];
-    if (has_save) { save_load(); apply_settings(); }
+    static uint8_t warned;
+    has_save = save_load();
+    if (has_save) apply_settings();
     fade_out();
     bgp_normal = 0xE4;
     show_picture(BANK_pic_title, pic_title);
@@ -45,8 +47,16 @@ uint8_t title_run(void) BANKED {
     }
     win_show(7, 112);
     fade_in();
-    if (save_status == SAVE_RECOVERED) {
-        /* tell the player, but never block them */
+    /* Tell the player about damaged saves once, gently; never block them. */
+    if (!warned && (save_status == SAVE_RECOVERED || save_status == SAVE_CORRUPT)) {
+        warned = 1;
+        win_hide();
+        if (save_status == SAVE_RECOVERED)
+            say("The newest page of the notebook was smudged. The page before it was still clear, so the summer continues from there.");
+        else
+            say("The notebook's pages were smudged and couldn't be read. A new summer can begin.");
+        say_close();
+        return title_run();
     }
     for (;;) {
         for (i = 0; i < n; ++i) {

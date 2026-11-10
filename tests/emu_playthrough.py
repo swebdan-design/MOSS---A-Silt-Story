@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'tools'))
 from play import Player
 
 ROM = sys.argv[1] if len(sys.argv) > 1 else 'release/MOSS_by_Synth_Centric.gb'
-OUT = 'build/qa'
+OUT = 'build/qa' + ('_sameboy' if os.environ.get('MOSS_EMU') == 'sameboy' else '')
 os.makedirs(OUT, exist_ok=True)
 M = {n: i for i, n in enumerate(['cottage', 'village', 'wood', 'pond', 'creek', 'railway', 'hill', 'clearing', 'pondscreen'])}
 BEH = dict(WIND=1, WATER=2, INSECTS=4, WOOD=8, RAIN=16, ECHO=32, STILL=64, MEMORY=128)
@@ -219,6 +219,9 @@ for i in range(700):
 check('ending reached, stone left at the pond', p.flag(40))
 p.tick(600)
 shot('30_title_postgame')
+with open(f'{OUT}/postgame_title.state', 'wb') as f:
+    try: p.pb.save_state(f)
+    except Exception: pass
 check('post-game unlocked', p.game_u8(5) == 1)
 
 # ---------------- POST-GAME
@@ -237,7 +240,7 @@ shot('33_preset_playing')
 check('instrument keeps playing autonomously', p.u16('_audio_played') > 100, str(p.u16('_audio_played')))
 
 ok = all(r['result'] == 'PASS' for r in results)
-json.dump({'rom': ROM, 'emulator': 'PyBoy', 'seconds': round(time.time() - t0),
+json.dump({'rom': ROM, 'emulator': os.environ.get('MOSS_EMU', 'pyboy'), 'seconds': round(time.time() - t0),
            'frames': p.pb.frame_count, 'results': results}, open(f'{OUT}/playthrough.json', 'w'), indent=1)
 print('\n%d/%d checks passed, %d emulated frames (%.0f minutes of play)' %
       (sum(r['result'] == 'PASS' for r in results), len(results), p.pb.frame_count, p.pb.frame_count / 3584))

@@ -95,17 +95,28 @@ static void hud(void) {
     vwf_draw(0, 4, line);
 }
 
+static char hud_last[40];
 static void hud_msg(const char *s) {
-    vwf_draw(1, 4, s);
+    uint8_t i = 0;
+    while (s[i] && i < 39) { hud_last[i] = s[i]; ++i; }
+    hud_last[i] = 0;
+    vwf_draw(1, 4, hud_last);
 }
 
 static void show_hud(uint8_t on) {
-    if (on) win_show(7, 128);
-    else win_hide();
+    uint8_t i, row[20];
+    if (!on) { win_hide(); return; }
+    for (i = 0; i < 20; ++i) row[i] = (uint8_t)(i == 0 || i == 19 ? UI_BLANK : vwf_slot_tile(0) + i - 1);
+    set_win_tiles(0, 0, 20, 1, row);
+    for (i = 0; i < 20; ++i) row[i] = (uint8_t)(i == 0 || i == 19 ? UI_BLANK : vwf_slot_tile(1) + i - 1);
+    set_win_tiles(0, 1, 20, 1, row);
+    hud();
+    vwf_draw(1, 4, hud_last);
+    win_show(7, 128);
 }
 
 static void draw_sprites(void) {
-    uint8_t i, k, used = 0, act = 0, pts, spr = 6;
+    uint8_t i, k, used = 0, act = 0, pts, spr = 7;
     for (i = 0; i < RIPPLE_LIMIT; ++i) act += garden.rip[i].active;
     pts = act <= 4 ? 8 : 4;
     for (i = 0; i < RIPPLE_LIMIT; ++i) {
@@ -132,7 +143,7 @@ static void draw_sprites(void) {
         uint8_t walk = boy_state == 2 && ((frame_count >> 3) & 1);
         gfx_actor(1, (uint8_t)(t + walk * 4), boy_x, boy_y, boy_state == 2, 0);
     } else gfx_hide_actor(1);
-    if (stone_left) gfx_small(4, SPR_PEBBLE, 76, 110, 0); else gfx_hide_small(4);
+    if (stone_left) gfx_small(6, SPR_PEBBLE, 60, 104, 0); else gfx_hide_small(6);
     /* the reed creature, now and then, at the right bank */
     if (reed_show) gfx_actor(2, ((frame_count >> 5) & 1) ? SPR_REED_B : SPR_REED, 146, 48, 0, 1);
     else gfx_hide_actor(2);
@@ -200,10 +211,16 @@ static void toggle_lily(void) {
 }
 
 /* ---------------------------------------------------------------- menu */
-static char items[200];
+#define ITEMS_MAX 320
+static char items[ITEMS_MAX];
 static void add(char **p, const char *a, const char *b) {
-    while (*a) *(*p)++ = *a++;
-    if (b) { *(*p)++ = ':'; *(*p)++ = ' '; while (*b) *(*p)++ = *b++; }
+    char *end = items + ITEMS_MAX - 2;
+    while (*a && *p < end) *(*p)++ = *a++;
+    if (b) {
+        if (*p < end) *(*p)++ = ':';
+        if (*p < end) *(*p)++ = ' ';
+        while (*b && *p < end) *(*p)++ = *b++;
+    }
     *(*p)++ = '|';
 }
 
@@ -217,7 +234,7 @@ static uint8_t pond_menu(void) {
         char *p = items;
         n = 0;
         num_to_str(tempo, comp.bpm);
-        add(&p, pmode == POND_FREE ? "Back to the title" : "Stand up", 0); ids[n++] = M_LEAVE;
+        add(&p, pmode == POND_FREE ? "Title screen" : "Stand up", 0); ids[n++] = M_LEAVE;
         add(&p, "Scale", scale_names[pond.scale]); ids[n++] = M_SCALE;
         add(&p, "Density", dens_names[pond.density]); ids[n++] = M_DENS;
         add(&p, "Tempo", tempo); ids[n++] = M_TEMPO;
@@ -228,11 +245,15 @@ static uint8_t pond_menu(void) {
         if (behaviours & BEH_INSECTS) { add(&p, "Insects", pond.insects ? "On" : "Off"); ids[n++] = M_INSECTS; }
         add(&p, "Hold", pond.hold ? "On" : "Off"); ids[n++] = M_HOLD;
         if (pmode == POND_FREE) {
-            add(&p, "Preset", garden_preset_name(game.preset)); ids[n++] = M_PRESET;
-            add(&p, "Keep this pond", 0); ids[n++] = M_SAVE;
-            if (game.my_pond_saved) { add(&p, "My pond", 0); ids[n++] = M_LOAD; }
+            {
+                static char pn[4];
+                pn[0] = (char)('1' + (game.preset & 7)); pn[1] = '/'; pn[2] = '8'; pn[3] = 0;
+                add(&p, "Preset", pn); ids[n++] = M_PRESET;
+            }
+            add(&p, "Keep my pond", 0); ids[n++] = M_SAVE;
+            if (game.my_pond_saved) { add(&p, "Load my pond", 0); ids[n++] = M_LOAD; }
         }
-        add(&p, "Clear the lilies", 0); ids[n++] = M_CLEAR;
+        add(&p, "Clear lilies", 0); ids[n++] = M_CLEAR;
         p[-1] = 0;
         r = menu(items, n, sel, 13, 1);
         if (r == 0xFF) break;
@@ -266,9 +287,14 @@ static uint8_t pond_menu(void) {
             snd_drone_off();
             garden_preset(game.preset);
             memset(drawn, 0xFF, sizeof(drawn));
+            {
+                static char nm[24];
+                garden_preset_name_copy(game.preset, nm);
+                hud_msg(nm);
+            }
             break;
         case M_SAVE:
-            if (!menu_lr) { memcpy(&game.my_pond, &pond, sizeof(pond)); game.my_pond_saved = 1; save_write(); }
+            if (!menu_lr) { memcpy(&game.my_pond, &pond, sizeof(pond)); game.my_pond_saved = 1; save_write(); hud_msg("Kept. It will be here next time."); }
             break;
         case M_LOAD:
             if (!menu_lr) { snd_drone_off(); memcpy(&pond, &game.my_pond, sizeof(pond)); garden_reset(); memset(drawn, 0xFF, sizeof(drawn)); }
@@ -342,7 +368,8 @@ static void final_sequence(void) {
     page_wrap(5, 6, "I'm leaving a stone by the pond. Not for the pond. The pond doesn't need anything. It's so that something of mine gets to stay.");
     page_center(14, "- the last page -");
     wait_frames(255); wait_frames(200);
-    win_hide();
+    page_close();
+    memset(drawn, 0xFF, sizeof(drawn));
     for (i = 0; i < 60; ++i) pond_frame();
     /* he places the stone, stands, and goes */
     stone_left = 1;
@@ -359,11 +386,13 @@ static void final_sequence(void) {
     pond_wait(600);
     page_open();
     gfx_set_palette(0xE4);
-    page_center(7, "I thought I had found the pond.");
+    page_center(6, "I thought I had found");
+    page_center(7, "the pond.");
     for (i = 0; i < 4; ++i) wait_frames(150);
     page_center(10, "But it was always here.");
     for (i = 0; i < 5; ++i) wait_frames(150);
-    win_hide();
+    page_close();
+    memset(drawn, 0xFF, sizeof(drawn));
     pond_wait(900);
 }
 

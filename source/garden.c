@@ -176,6 +176,13 @@ const char *garden_preset_name(uint8_t index) MB {
     return presets[index & 7].name;
 }
 
+/* Copy a preset name into RAM (callers may live in other ROM banks). */
+void garden_preset_name_copy(uint8_t index, char *out) MB {
+    const char *s = presets[index & 7].name;
+    while (*s) *out++ = *s++;
+    *out = 0;
+}
+
 void garden_preset(uint8_t index) MB {
     const Preset *p = &presets[index & 7];
     uint8_t i;
