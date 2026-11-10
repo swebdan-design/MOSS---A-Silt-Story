@@ -161,7 +161,8 @@ int main(void) {
     {
         uint32_t none_l = 0, all_l = 0;
         reset_all(11); garden_story_default(); compose_scene(SCENE_POND, 0); run_frames(MIN * 3);
-        for (i = 0; i < nrec; ++i) none_l += rec[i].ch == CH_LIVING || rec[i].ch == CH_WATER;
+        for (i = 0; i < nrec; ++i)
+            none_l += rec[i].ch == CH_LIVING || (rec[i].ch == CH_WATER && !((rec[i].fx & FX_DRONE) && rec[i].env == 0));
         reset_all(11); garden_story_default(); compose_scene(SCENE_POND, BEH_ALL); run_frames(MIN * 3);
         for (i = 0; i < nrec; ++i) all_l += rec[i].ch == CH_LIVING || rec[i].ch == CH_WATER;
         printf("living+water events: no discoveries %u, all %u\n", (unsigned)none_l, (unsigned)all_l);

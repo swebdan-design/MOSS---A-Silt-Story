@@ -121,6 +121,13 @@ static void start_event(const SndEv *e) {
     }
     c->per = c->base = period_of(ch == 2 ? (uint8_t)(e->note + 12) : e->note);
     if (ch == 2) {
+        if ((e->fx & FX_DRONE) && !(e->env & 3)) {
+            /* level 0: the water falls silent (scene without a drone) */
+            drone_on = 0;
+            c->fx = 0; c->hold = 0; c->prio = 0;
+            NR32_REG = 0;
+            return;
+        }
         if (e->fx & FX_DRONE) {
             uint8_t was_on = drone_on;
             drone_on = 1;

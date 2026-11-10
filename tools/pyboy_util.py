@@ -10,8 +10,11 @@ def boot(rom, sound=True, cgb=False):
     if os.environ.get('MOSS_EMU') == 'sameboy':
         from sameboy_backend import SameBoy
         return SameBoy(rom, sound=sound)
+    # Always start from a blank cartridge RAM held in memory, so a stray
+    # .ram file next to the ROM can never leak into a test.
+    import io
     return PyBoy(rom, window='null', sound_emulated=sound, cgb=cgb, log_level='ERROR',
-                 sound_volume=100)
+                 sound_volume=100, ram_file=io.BytesIO(bytes(0x2000)))
 
 
 class Recorder:

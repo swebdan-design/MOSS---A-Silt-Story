@@ -182,7 +182,16 @@ static void drone_update(uint8_t delay) {
     uint8_t level = p->drone;
     if (!(comp.behaviours & BEH_WATER) || !comp.water) level = 0;
     if (comp.scene == SCENE_TITLE) level = 1;
-    if (!level) return;
+    if (!level) {
+        /* No water in this scene: make sure a drone from elsewhere stops.
+           Sent on every scene change (cheap), because a new game resets the
+           composer while the title's drone may still be sounding. */
+        if (comp.drone_note || comp.step == 0 || delay == 0) {
+            emit(CH_WATER, 50, 0, comp.wave, 0, PRIO_AMBIENT, FX_DRONE, 1, PAN_C, delay);
+            comp.drone_note = 0;
+        }
+        return;
+    }
     if (comp.hush && level > 1) level = 1;
     comp.drone_note = compose_scale_midi(comp.chord);
     while (comp.drone_note > 50) comp.drone_note -= 12;

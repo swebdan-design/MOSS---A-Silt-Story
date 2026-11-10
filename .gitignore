@@ -2,3 +2,6 @@
 build/
 __pycache__/
 *.pyc
+*.ram
+*.sav
+dist/*.tmp
