@@ -43,9 +43,9 @@ void pal_init(void) {
 }
 
 /* fog colour (a violet-grey haze) */
-#define FOG_R 9u
-#define FOG_G 9u
-#define FOG_B 13u
+#define FOG_R 12u
+#define FOG_G 12u
+#define FOG_B 16u
 
 static uint16_t shade(const uint8_t *rgb, uint8_t idx, uint8_t pal) {
     uint8_t c[3], k;
@@ -54,7 +54,7 @@ static uint16_t shade(const uint8_t *rgb, uint8_t idx, uint8_t pal) {
         /* fog lifts the dark tones toward haze and softens the lights */
         if (pal_fog) {
             static const uint8_t fogc[3] = {FOG_R, FOG_G, FOG_B};
-            uint8_t amt = (uint8_t)(pal_fog >> 1);   /* 0..8 of 16 */
+            uint8_t amt = (uint8_t)((pal_fog * 3u) >> 2);   /* 0..12 of 16 */
             for (k = 0; k < 3; ++k)
                 c[k] = (uint8_t)(((uint16_t)c[k] * (16 - amt) + (uint16_t)fogc[k] * amt) >> 4);
         }

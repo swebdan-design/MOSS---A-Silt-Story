@@ -143,7 +143,8 @@ static const char *const notes[12] = {"C", "C#", "D", "D#", "E", "F", "F#", "G",
 static const char *const wnames[6] = {"AUTO", "CLEAR", "LIGHT RAIN", "HEAVY RAIN", "FOG", "STORM"};
 static const char *const roman[7] = {"I", "II", "III", "IV", "V", "VI", "VII"};
 
-static uint8_t page, sel, seed_edit, seed_digit, save_slot, load_choice;
+uint8_t menu_page, menu_sel;
+static uint8_t seed_edit, seed_digit, save_slot, load_choice;
 static uint8_t msg_t;
 static char msg[21];
 static uint8_t digits[5];
@@ -153,7 +154,9 @@ static uint8_t digits[5];
 #define UI_DIM 2u
 
 static uint8_t item_y(uint8_t i) {
-    return (uint8_t)(4 + i * (page_len[page] > 5 ? 1u : 2u) + (page_len[page] > 5 && i >= 4 ? 1u : 0u));
+    if (page_len[menu_page] > 5) return (uint8_t)(i < 4 ? 5 + i * 2u : 9 + i);   /* settings, then actions */
+    if (menu_page == 4 && i >= 2) return (uint8_t)(6 + i * 2u);   /* room for the preset name */
+    return (uint8_t)(5 + i * 2u);
 }
 
 static void meter(char *b, uint8_t v, uint8_t max) {
@@ -167,12 +170,12 @@ static void meter(char *b, uint8_t v, uint8_t max) {
 }
 
 static void draw_item(uint8_t i) {
-    const Item *it = &pages[page][i];
-    uint8_t y = item_y(i), pal = (i == sel) ? UI_HI : UI_TEXT;
+    const Item *it = &pages[menu_page][i];
+    uint8_t y = item_y(i), pal = (i == menu_sel) ? UI_HI : UI_TEXT;
     char b[12];
     win_fill(y, 1, ' ', UI_TEXT);
     if (it->type == T_PRESET) win_fill((uint8_t)(y + 1), 1, ' ', UI_TEXT);
-    win_row(y, i == sel ? "f" : " ", 1, UI_HI);
+    win_row(y, i == menu_sel ? "f" : " ", 1, UI_HI);
     win_row(y, it->label, 2, pal);
     switch (it->type) {
     case T_PARAM:
@@ -185,7 +188,7 @@ static void draw_item(uint8_t i) {
         win_row(y, notes[mparam[P_ROOT] % 12u], 12, pal);
         break;
     case T_MODE:
-        win_row(y, music_mode_name(mparam[P_MODE]), 9, pal);
+        win_row(y, music_mode_name(mparam[P_MODE]), 10, pal);
         break;
     case T_SEED: {
         uint8_t k;
@@ -197,7 +200,7 @@ static void draw_item(uint8_t i) {
         if (seed_edit) win_row(y, "*", 18, UI_HI);
         break; }
     case T_WEATHER:
-        win_row(y, wnames[weather_mode < 6 ? weather_mode : 0], 9, pal);
+        win_row(y, wnames[weather_mode < 6 ? weather_mode : 0], 10, pal);
         break;
     case T_SLOT:
         num_str(b, save_slot + 1u, 1);
@@ -246,15 +249,15 @@ static void draw_page(void) {
     char b[4];
     uint8_t i;
     win_fill(0, 18, ' ', UI_TEXT);
-    win_row(0, "VACANT SYNTH", 1, UI_DIM);
-    num_str(b, page + 1u, 1);
-    win_row(0, b, 16, UI_DIM);
-    win_row(0, "/5", 17, UI_DIM);
-    win_fill(1, 1, 'l', UI_DIM);
-    win_row(2, "j", 1, UI_DIM);
-    win_row(2, page_title[page], (uint8_t)((20 - strlen(page_title[page])) >> 1), UI_TEXT);
-    win_row(2, "k", 18, UI_DIM);
-    for (i = 0; i < page_len[page]; ++i) draw_item(i);
+    win_row(1, "VACANT SYNTH", 1, UI_DIM);
+    num_str(b, menu_page + 1u, 1);
+    win_row(1, b, 16, UI_DIM);
+    win_row(1, "/5", 17, UI_DIM);
+    win_fill(2, 1, 'l', UI_DIM);
+    win_row(3, "j", 1, UI_DIM);
+    win_row(3, page_title[menu_page], (uint8_t)((20 - strlen(page_title[menu_page])) >> 1), UI_TEXT);
+    win_row(3, "k", 18, UI_DIM);
+    for (i = 0; i < page_len[menu_page]; ++i) draw_item(i);
     win_fill(16, 1, 'g', UI_DIM);
     draw_live();
 }
@@ -362,7 +365,7 @@ uint8_t menu_run(void) BANKED {
     popup_hide();
     pal_ui = 1;
     seed_edit = 0;
-    if (sel >= page_len[page]) sel = 0;
+    if (menu_sel >= page_len[menu_page]) menu_sel = 0;
     seed_to_digits(world_seed);
     win_fill(0, 18, ' ', UI_TEXT);
     wx_v = 7; wy_v = 0; lcdc_win = 1;
@@ -382,20 +385,20 @@ uint8_t menu_run(void) BANKED {
             if (pressed & J_UP) digits[seed_digit] = (uint8_t)((digits[seed_digit] + 1) % 10u);
             if (pressed & J_DOWN) digits[seed_digit] = (uint8_t)((digits[seed_digit] + 9) % 10u);
             if (pressed & J_B) { seed_edit = 0; seed_to_digits(world_seed); }
-            if (pressed & J_A) { r = activate(&pages[page][sel]); if (r != 0xFF) break; }
-            if (pressed) draw_item(sel);
+            if (pressed & J_A) { r = activate(&pages[menu_page][menu_sel]); if (r != 0xFF) break; }
+            if (pressed) draw_item(menu_sel);
             draw_live();
             continue;
         }
         if (pressed & (J_START | J_B)) { r = MENU_CLOSE; break; }
-        if (pressed & J_SELECT) { page = (uint8_t)((page + 1) % 5u); sel = 0; draw_page(); continue; }
-        if (pressed & J_UP) { uint8_t o = sel; sel = sel ? sel - 1 : page_len[page] - 1; draw_item(o); draw_item(sel); }
-        if (pressed & J_DOWN) { uint8_t o = sel; sel = (uint8_t)((sel + 1) % page_len[page]); draw_item(o); draw_item(sel); }
-        if (pressed & (J_LEFT | J_RIGHT)) { adjust(&pages[page][sel], (pressed & J_RIGHT) ? 1 : -1); draw_item(sel); }
+        if (pressed & J_SELECT) { menu_page = (uint8_t)((menu_page + 1) % 5u); menu_sel = 0; draw_page(); continue; }
+        if (pressed & J_UP) { uint8_t o = menu_sel; menu_sel = menu_sel ? menu_sel - 1 : page_len[menu_page] - 1; draw_item(o); draw_item(menu_sel); }
+        if (pressed & J_DOWN) { uint8_t o = menu_sel; menu_sel = (uint8_t)((menu_sel + 1) % page_len[menu_page]); draw_item(o); draw_item(menu_sel); }
+        if (pressed & (J_LEFT | J_RIGHT)) { adjust(&pages[menu_page][menu_sel], (pressed & J_RIGHT) ? 1 : -1); draw_item(menu_sel); }
         if (pressed & J_A) {
-            r = activate(&pages[page][sel]);
+            r = activate(&pages[menu_page][menu_sel]);
             if (r != 0xFF) break;
-            draw_item(sel);
+            draw_item(menu_sel);
         }
         draw_live();
     }
@@ -481,8 +484,8 @@ void ui_dmg_notice(void) BANKED {
     win_row(6, "VACANT", 7, 0);
     win_row(8, "BY SYNTH CENTRIC", 2, 0);
     win_row(11, "THIS CARTRIDGE", 3, 0);
-    win_row(12, "NEEDS A GAME BOY", 2, 0);
-    win_row(13, "COLOR", 7, 0);
+    win_row(13, "NEEDS A GAME BOY", 2, 0);
+    win_row(15, "COLOR", 7, 0);
     wx_v = 7; wy_v = 0;
     WX_REG = 7; WY_REG = 0;
     LCDC_REG = 0xF1;   /* LCD, window at 9C00, 8000 tiles, window on, BG on */

@@ -16,11 +16,18 @@ KEYS = {'a': 'a', 'b': 'b', 'start': 'start', 'select': 'select',
 
 
 class Emu:
-    def __init__(self, rom=ROM, ram_file=None, sound=False):
-        kw = dict(window='null', cgb=True, sound_emulated=sound)
-        if ram_file is not None:
-            kw['ram_file'] = ram_file
-        self.pb = PyBoy(str(rom), **kw)
+    def __init__(self, rom=ROM, sram=None, sound=False):
+        """Boot a scratch copy of the ROM. sram: bytes for battery RAM, or None
+        for a blank cartridge. Battery RAM is never written next to the release."""
+        import io
+        import shutil
+        run = ROOT / 'build/emu'
+        run.mkdir(parents=True, exist_ok=True)
+        self.rom = run / 'vacant_test.gbc'
+        shutil.copy(rom, self.rom)
+        ram = io.BytesIO(sram if sram is not None else b'\xff' * 8192)
+        kw = dict(window='null', cgb=True, sound_emulated=sound, ram_file=ram)
+        self.pb = PyBoy(str(self.rom), **kw)
         self.pb.set_emulation_speed(0)
         self.frames = 0
         self.sym = self._symbols()
@@ -69,5 +76,12 @@ class Emu:
         img.save(path)
         return img
 
+    def sram(self):
+        """Battery RAM contents as the cartridge would keep them."""
+        import io
+        buf = io.BytesIO()
+        self.pb.stop(save=True, ram_file=buf)
+        return buf.getvalue()
+
     def stop(self):
-        self.pb.stop(save=True)
+        self.pb.stop(save=False)

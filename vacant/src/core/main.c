@@ -155,7 +155,7 @@ static void hardware_init(void) {
 }
 
 void main(void) {
-    uint8_t keys, prev = 0, pressed, r;
+    uint8_t keys, prev = 0, pressed, r, start_pending = 0;
     if (_cpu != CGB_TYPE) {
         DISPLAY_OFF;
         ui_dmg_notice();
@@ -200,7 +200,10 @@ void main(void) {
         pressed = keys & (uint8_t)~prev;
         prev = keys;
 
-        if ((pressed & J_START) && !pl_moving) {
+        /* START during a step is remembered until the walker arrives */
+        if (pressed & J_START) start_pending = 1;
+        if (start_pending && !pl_moving) {
+            start_pending = 0;
             player_hide();
             weather_hide();
             r = menu_run();

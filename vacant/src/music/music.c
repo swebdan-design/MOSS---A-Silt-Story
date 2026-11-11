@@ -237,7 +237,8 @@ static void set_root(void) {
 /* ----------------------------------------------------------------- drone */
 static uint8_t drone_lvl_target(void) {
     uint8_t m = mparam[P_DRONE];
-    uint8_t l = m == 0 ? 0 : m < 6 ? 1 : m < 11 ? 2 : 3;
+    /* the wave channel is strong: 25% for most settings, 50% high, 100% at max */
+    uint8_t l = m == 0 ? 0 : m < 9 ? 1 : m < 15 ? 2 : 3;
     if (music_focus && l > 1) --l;
     return l;
 }
@@ -314,7 +315,7 @@ static void melody_note(int8_t deg) {
     if (e_tens > 8 && RND() < (uint8_t)(e_tens * 3)) n += (RND() & 1) ? 1 : -1;
     while (n > 91) n -= 12;      /* keep the melody below a piercing register */
     note = clamp_note(n);
-    vol = mixvol((uint8_t)(7 + rn(5)), mparam[P_MELODY]);
+    vol = mixvol((uint8_t)(10 + rn(5)), mparam[P_MELODY]);
     if (!vol) return;
     per = (uint8_t)(2 + e_env + (e_dens < 5 ? 1 : 0));
     if (per > 7) per = 7;
@@ -379,7 +380,7 @@ static void pulse_step(void) {
         note = chord_note(pu_k, 60);
         if (pu_dir) { if (pu_k == 0) pu_dir = 0; else --pu_k; }
         else { if (++pu_k >= 3) { pu_k = 2; pu_dir = 1; } }
-        vol = mixvol((uint8_t)(5 + rn(3)), mix);
+        vol = mixvol((uint8_t)(7 + rn(4)), mix);
         if (vol && claim(1, 2, (uint8_t)(step_frames * 2))) {
             pu_pan = pu_pan == PAN_L ? PAN_R : PAN_L;
             snd_pulse(1, note, (uint8_t)((vol << 4) | 3), 2, pu_pan, 0);
@@ -393,7 +394,7 @@ static void pulse_step(void) {
         break;
     case 2:   /* shimmer: a pseudo-chord, three tones alternating every frame pair */
         if ((step & 7) || RND() > (uint8_t)(e_dens * 12 + 60)) return;
-        vol = mixvol((uint8_t)(4 + rn(3)), mix);
+        vol = mixvol((uint8_t)(6 + rn(3)), mix);
         if (vol && claim(1, 2, (uint8_t)(step_frames * 6))) {
             uint8_t k;
             for (k = 0; k < 3; ++k) sh_per[k] = snd_period(chord_note(k, 72));
@@ -405,7 +406,7 @@ static void pulse_step(void) {
         if ((step % 6u) != 0 || RND() > (uint8_t)(e_dens * 12 + 50)) return;
         pu_k ^= 1;
         note = pu_k ? chord_note(0, 60) : chord_note(2, 60);
-        vol = mixvol((uint8_t)(4 + rn(3)), mix);
+        vol = mixvol((uint8_t)(6 + rn(3)), mix);
         if (vol && claim(1, 2, (uint8_t)(step_frames * 3))) {
             snd_pulse(1, note, (uint8_t)((vol << 4) | 4), 2, pu_k ? PAN_L : PAN_R, 0);
             echo_push((uint8_t)(step_frames * 4), note, (uint8_t)(((vol >> 1) << 4) | 4), pu_k ? PAN_R : PAN_L);

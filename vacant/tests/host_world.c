@@ -150,6 +150,38 @@ static void test_stats(void) {
 }
 
 int main(int argc, char **argv) {
+    if (argc == 4 && strcmp(argv[1], "find") == 0) {
+        /* find <seed> <district>: a street position beside a cell of that district,
+         * preferring cells that hold a landmark */
+        uint16_t seed = (uint16_t)atoi(argv[2]);
+        int d = atoi(argv[3]), pass, k;
+        world_set_seed(seed);
+        for (pass = 0; pass < 2; ++pass)
+            for (k = 0; k < 4000; ++k) {
+                uint16_t cx = (uint16_t)(2048 + (k % 63) - 31), cy = (uint16_t)(2048 + (k / 63) - 31);
+                if (world_cell_district(cx, cy) != d) continue;
+                {
+                    Cell *c = world_cell_at((uint16_t)((cx >> 2) << 6) + 8 * (cx & 3) + 32, 0);
+                    (void)c;
+                }
+                /* locate the cell's origin by probing its superblock */
+                {
+                    uint16_t x, y;
+                    for (y = (uint16_t)((cy >> 2) << 6); y < (uint16_t)(((cy >> 2) << 6) + 64); ++y)
+                        for (x = (uint16_t)((cx >> 2) << 6); x < (uint16_t)(((cx >> 2) << 6) + 64); ++x) {
+                            Cell *c = world_cell_at(x, y);
+                            if (c->cx == cx && c->cy == cy) {
+                                if (pass == 0 && c->lm_type == LM_NONE) goto next;
+                                if (world_is_viaduct_row(cy)) goto next;
+                                printf("%u %u %u\n", c->x0 + 1, c->y0 + c->h / 2, c->lm_type);
+                                return 0;
+                            }
+                        }
+                }
+            next:;
+            }
+        return 1;
+    }
     if (argc == 7) {
         FILE *f = fopen(argv[1], "wb");
         int x, y, w = atoi(argv[5]), h = atoi(argv[6]);
