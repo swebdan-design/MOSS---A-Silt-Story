@@ -1,5 +1,8 @@
 # MOSS
 
+> This repository also contains **VACANT — An Endless City After Dark** (Game Boy Color), a separate Synth Centric release in [`vacant/`](vacant/README.md).
+
+
 **A SILT Story** — an interactive musical adventure for the original Nintendo Game Boy.
 
 **by Synth Centric**
