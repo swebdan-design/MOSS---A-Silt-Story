@@ -1,0 +1,37 @@
+{
+ "_comment": "One row per animated 8x8 tile; frame 0 must appear in metatiles.png.",
+ "anims": [
+  {
+   "tag": "PUDDLE",
+   "frames": 4
+  },
+  {
+   "tag": "WATER",
+   "frames": 4
+  },
+  {
+   "tag": "TREE_TL",
+   "frames": 2
+  },
+  {
+   "tag": "TREE_TR",
+   "frames": 2
+  },
+  {
+   "tag": "FAN_TL",
+   "frames": 4
+  },
+  {
+   "tag": "FAN_TR",
+   "frames": 4
+  },
+  {
+   "tag": "FAN_BL",
+   "frames": 4
+  },
+  {
+   "tag": "FAN_BR",
+   "frames": 4
+  }
+ ]
+}

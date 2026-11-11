@@ -1,0 +1,37 @@
+{
+  "_comment": [
+    "VACANT night palettes. Each palette is four colours, shade 0 (darkest) to 3.",
+    "Shade 0 is shared by every palette so tiles of different palettes meet seamlessly.",
+    "GROUND, LAMP and SIGNAL share shade 1 (the 'ground family'); BUILD, WINDOW and NEON",
+    "share shade 1 with the current district's wall colour (the 'building family').",
+    "Shade 2 of a family palette is the 'lit surface' tone: a lamp quadrant turns the",
+    "pavement bevels warm, a neon quadrant turns wall highlights cyan.",
+    "The engine recomputes these at runtime for district tint, weather and fog."
+  ],
+  "shade0": "#08070f",
+  "bg": {
+    "GROUND": ["#08070f", "#1f2136", "#3a3d5c", "#7d9cb4"],
+    "BUILD":  ["#08070f", "#241f3c", "#3f3863", "#6f6a9a"],
+    "WINDOW": ["#08070f", "#241f3c", "#b0703a", "#f6c870"],
+    "NEON":   ["#08070f", "#241f3c", "#2a8c94", "#9cf2ea"],
+    "SIGNAL": ["#08070f", "#1f2136", "#8c2a48", "#f0708a"],
+    "NATURE": ["#08070f", "#142824", "#2c5246", "#6e9878"],
+    "WATER":  ["#08070f", "#101a3a", "#23507a", "#79bfd0"],
+    "LAMP":   ["#08070f", "#1f2136", "#8a6a48", "#f2cf86"]
+  },
+  "bg_order": ["GROUND", "BUILD", "WINDOW", "NEON", "SIGNAL", "NATURE", "WATER", "LAMP"],
+  "district_build": {
+    "STREETS":     ["#241f3c", "#3f3863", "#6f6a9a"],
+    "INDUSTRIAL":  ["#2a2224", "#4a3c3a", "#84706a"],
+    "RESIDENTIAL": ["#2c1f3e", "#4e3868", "#9478b4"],
+    "LOWER":       ["#16232a", "#2a4046", "#5a7c80"],
+    "FORGOTTEN":   ["#1f2622", "#3a463e", "#74846e"]
+  },
+  "sprite": {
+    "PLAYER": ["#000000", "#0c0a16", "#4a5878", "#c4ecf2"],
+    "RAIN":   ["#000000", "#2c4060", "#6a90b4", "#b8dcee"],
+    "CURSOR": ["#000000", "#08070f", "#2a8c94", "#9cf2ea"],
+    "SPARE":  ["#000000", "#08070f", "#b0703a", "#f6c870"]
+  },
+  "ui": ["#08070f", "#16243a", "#2a8c94", "#9cf2ea"]
+}
